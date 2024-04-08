@@ -2,10 +2,12 @@
 #include "Labirynth.hpp"
 
 class Parser{
-int row_lenght;
+int m_row_lenght;
 int* m_input_data;
 int* m_output_data;
 Labirynth m_labirynth;
+int charToInt(char ch);
+
 public:
     Parser() = default;
     ~Parser();
