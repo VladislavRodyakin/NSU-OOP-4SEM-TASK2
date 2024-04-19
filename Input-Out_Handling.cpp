@@ -9,10 +9,13 @@ int Parser::charToInt(char ch)
 
 Parser::~Parser()
 {
+    delete [] m_input_data;
+    delete [] m_output_data;
 }
 
 void Parser::parse(std::string fileName)
 {
+    //redo w/ filestream
     FILE* file = fopen(fileName.c_str(), "r");
     
     int ch = fgetc(file);
@@ -29,7 +32,7 @@ void Parser::parse(std::string fileName)
     m_row_lenght--;
     m_labirynth[0].pop_back();
     m_labirynth[1].push_back(1);
-    m_labirynth[1].push_back(ch - '0'); // check if it works seeing that we have ' ' separators
+    m_labirynth[1].push_back(charToInt(ch)); // check if it works seeing that we have ' ' separators
 
     int counter = 0;
     int row = 1;
@@ -42,7 +45,7 @@ void Parser::parse(std::string fileName)
             row++;
             counter = 0;
         }
-        m_labirynth[row].push_back(ch - '0');
+        m_labirynth[row].push_back(charToInt(ch));
         counter++;
     }
     
@@ -58,6 +61,8 @@ Labirynth Parser::getLabirynth()
     return m_labirynth;
 }
 
+
+// ideally join this two funcs 
 void Parser::prepareOutputData(Labirynth labirynth)
 {
     m_output_data = new int[labirynth.size() * labirynth[0].size()];
