@@ -13,47 +13,28 @@ Parser::~Parser()
     delete [] m_output_data;
 }
 
-void Parser::parse(std::string fileName)
+void Parser::parse(std::istream& input_stream)
 {
-    //redo w/ filestream
-    FILE* file = fopen(fileName.c_str(), "r");
-    
-    int ch = fgetc(file);
     // we have to assume that the first line is always only 1
     // otherwise we will have to somehow get dimensions for the labirynth
-    while (ch == '1' || ch == ' '){
-        if (ch == ' '){
-            continue;
-        }
-        m_labirynth[0].push_back(1);
-        m_row_lenght++;
-        ch = fgetc(file);
+    int x_dim = 0;
+    int y_dim = 0;
+    std::vector<int> labir;
+    std::string line;
+    std::getline(input_stream, line);
+    std::istringstream string_stream(line);
+    int field = 1;
+    while (field == 1){
+        string_stream >> field;
+        labir.push_back(field);
     }
-    m_row_lenght--;
-    m_labirynth[0].pop_back();
-    m_labirynth[1].push_back(1);
-    m_labirynth[1].push_back(charToInt(ch)); // check if it works seeing that we have ' ' separators
+    x_dim = labir.size()-1;
+    while (string_stream >> field){
+        labir.push_back(field);
+    }
+    y_dim = labir.size()/x_dim;    
 
-    int counter = 0;
-    int row = 1;
-    while((ch = fgetc(file)) != EOF)
-    {
-        if (ch == ' '){
-            continue;
-        }
-        if (counter == m_row_lenght){
-            row++;
-            counter = 0;
-        }
-        m_labirynth[row].push_back(charToInt(ch));
-        counter++;
-    }
-    
-    if(counter != m_row_lenght){
-        throw std::invalid_argument("Got invalid labirynth from file");
-    }
-
-    fclose(file);
+    m_labirynth = Labirynth(x_dim, y_dim, labir);
 }
 
 Labirynth Parser::getLabirynth()
@@ -61,27 +42,19 @@ Labirynth Parser::getLabirynth()
     return m_labirynth;
 }
 
-
-// ideally join this two funcs 
-void Parser::prepareOutputData(Labirynth labirynth)
-{
-    m_output_data = new int[labirynth.size() * labirynth[0].size()];
-    for (int i = 0; i < labirynth.size(); i++)
-    {
-        for (int j = 0; j < labirynth[0].size(); j++)
-        {
-            m_output_data[i * labirynth[0].size() + j] = labirynth[i][j];
+void Parser::writeOutput(std::ostream& output_stream, const Labirynth& labirynth){
+    m_labirynth = labirynth;
+    int max_x, max_y = 0;
+    m_labirynth.getDimensions(max_x, max_y);
+    int field = 0;
+    for (int i = 0; i < max_x; i++){
+        for (int j = 0; j < max_y; j++){
+            field = m_labirynth.accessXY(i, j);
+            output_stream << (field == -1 ? '*' : field) << " ";
+            // because path needs to be marked with *
         }
     }
+    output_stream << "\n";
+
 }
 
-void Parser::writeOutput(std::string fileName)
-{
-    FILE* file = fopen(fileName.c_str(), "w");
-    for (int i = 0; i < m_labirynth.size(); i++){
-        for (int j = 0; j < m_labirynth[0].size(); j++){
-            fprintf(file, "%d ", m_output_data[i * m_labirynth[0].size() + j]);
-        }
-    }
-    fprintf(file, "\n");
-}
