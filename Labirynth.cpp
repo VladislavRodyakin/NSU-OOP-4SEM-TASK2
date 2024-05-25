@@ -7,9 +7,8 @@ Labirynth::Labirynth(const Labirynth& other): m_max_x(other.m_max_x),
 {
 }
 
-Labirynth::Labirynth(int x_dim, int y_dim, const std::vector<int>& labirynth): m_max_x(x_dim),
-                                                                            m_max_y(y_dim),
-                                                                            m_labirynth(labirynth)
+Labirynth::Labirynth(int x_dim, int y_dim, const std::vector<int>& labirynth):
+        m_max_x(x_dim), m_max_y(y_dim), m_labirynth(labirynth)
 {
 }
 
@@ -122,8 +121,12 @@ LabirynthSolver::~LabirynthSolver(){}
 
 int LabirynthSolver::solve(){
     bool solvable = true;
-    while(update_work_field(solvable) == 0){
-        current_step++;
+    while(true){
+        int solvable_int = update_work_field(solvable);
+        if(solvable_int == 0){
+            current_step++;
+        }
+        // if... by int
     }
     if (solvable == false){
         return 0;
