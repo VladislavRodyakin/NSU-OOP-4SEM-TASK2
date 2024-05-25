@@ -1,19 +1,8 @@
 #include "Input-Out_Handling.hpp"
 #include <exception>
 
-int Parser::charToInt(char ch)
-{
-    return static_cast<int>(ch) - static_cast<int>('0');
-}
 
-
-Parser::~Parser()
-{
-    delete [] m_input_data;
-    delete [] m_output_data;
-}
-
-void Parser::parse(std::istream& input_stream)
+Labirynth LabirynthIO::parse(std::istream& input_stream)
 {
     // we have to assume that the first line is always only 1
     // otherwise we will have to somehow get dimensions for the labirynth
@@ -32,24 +21,23 @@ void Parser::parse(std::istream& input_stream)
     while (string_stream >> field){
         labir.push_back(field);
     }
-    y_dim = labir.size()/x_dim;    
+    y_dim = labir.size()/x_dim;
 
-    m_labirynth = Labirynth(x_dim, y_dim, labir);
+    if (labir.size() != x_dim * y_dim){
+        throw std::invalid_argument("Invalid labirynth, inconsistent dimensions");
+    }
+    
+    return Labirynth(x_dim, y_dim, labir);
 }
 
-Labirynth Parser::getLabirynth()
-{
-    return m_labirynth;
-}
 
-void Parser::writeOutput(std::ostream& output_stream, const Labirynth& labirynth){
-    m_labirynth = labirynth;
+void LabirynthIO::writeOutput(std::ostream& output_stream, const Labirynth& labirynth){
     int max_x, max_y = 0;
-    m_labirynth.getDimensions(max_x, max_y);
+    labirynth.getDimensions(max_x, max_y);
     int field = 0;
     for (int i = 0; i < max_x; i++){
         for (int j = 0; j < max_y; j++){
-            field = m_labirynth.accessXY(i, j);
+            field = labirynth.getXY(i, j);
             output_stream << (field == -1 ? '*' : field) << " ";
             // because path needs to be marked with *
         }
@@ -58,3 +46,8 @@ void Parser::writeOutput(std::ostream& output_stream, const Labirynth& labirynth
 
 }
 
+
+
+
+// int LabirynthIO::charToInt(char ch){return static_cast<int>(ch) - static_cast<int>('0');}
+// Labirynth LabirynthIO::getLabirynth(){return m_labirynth;}
