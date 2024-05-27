@@ -17,11 +17,11 @@ std::vector<int> Labirynth::get1DLabirynth() const{
 }
 
 void Labirynth::setXY(int x, int y, int val){
-    m_labirynth[(y-1)*m_max_x + x] = val;
+    m_labirynth[y*m_max_x + x] = val;
 }
 
 int Labirynth::getXY(int x, int y) const{
-    return m_labirynth[(y-1)*m_max_x + x];
+    return m_labirynth[y*m_max_x + x];
 }
 
 // int& Labirynth::accessXY(int x, int y){return m_labirynth[(y-1)*m_max_x + x];}
@@ -40,7 +40,7 @@ void LabirynthSolver::init_work_field(const Labirynth& m_labirynth){
                 work_field.setXY(i, j, -1);
             }
             if(m_labirynth.getXY(i, j) == 2){
-                work_field.setXY(i, j, 0);
+                work_field.setXY(i, j, 1);
                 x_start = i;
                 y_start = j;
             }
@@ -51,6 +51,7 @@ void LabirynthSolver::init_work_field(const Labirynth& m_labirynth){
             }
         }
     }
+
 }
 
 int LabirynthSolver::check_if_near_exit(int x, int y){
@@ -76,10 +77,10 @@ int LabirynthSolver::check_if_near_exit(int x, int y){
 }
 
 
-int LabirynthSolver::update_work_field(bool& solvable){
+int LabirynthSolver::update_work_field(){
     int max_x = 0, max_y = 0;
     work_field.getDimensions(max_x, max_y);
-    solvable = false;
+    bool solvable = false;
 
     for (int i = 0; i < max_x; i++){
         for (int j = 0; j < max_y; j++){
@@ -113,25 +114,27 @@ int LabirynthSolver::update_work_field(bool& solvable){
     return 0;
 }
 
-LabirynthSolver::LabirynthSolver(const Labirynth& labirynth): work_field(labirynth){
+LabirynthSolver::LabirynthSolver(const Labirynth& labirynth): work_field(labirynth), m_labirynth(labirynth){
     init_work_field(labirynth);
 }
 
 LabirynthSolver::~LabirynthSolver(){}
 
 int LabirynthSolver::solve(){
-    bool solvable = true;
+    int solvable_int = 0;
     while(true){
-        int solvable_int = update_work_field(solvable);
+        solvable_int = update_work_field();
         if(solvable_int == 0){
             current_step++;
         }
-        // if... by int
+        else if(solvable_int == -1){
+            return 0;
+        }
+        else if (solvable_int == 1){
+            return 1;
+        }
     }
-    if (solvable == false){
-        return 0;
-    }
-    return 1;
+
 }
 
 Labirynth LabirynthSolver::getAnswer(){
@@ -141,33 +144,34 @@ Labirynth LabirynthSolver::getAnswer(){
 
     int max_x = 0, max_y = 0;
     work_field.getDimensions(max_x, max_y);
-    Labirynth answer(work_field);
+    Labirynth answer(m_labirynth);
     int x = x_finish;
     int y = y_finish;
     int aim_val = current_step;
 
-    while (aim_val > 0){
+
+    while (aim_val > 1){
         if (x - 1 >= 0 && work_field.getXY(x-1,y) == aim_val){
             x = x - 1;
-            answer.setXY(x-1, y, -1);
+            answer.setXY(x, y, -1);
             aim_val--;
             continue;
         }
         if (x + 1 < max_x && work_field.getXY(x+1,y) == aim_val){
             x = x + 1;
-            answer.setXY(x+1, y, -1);
+            answer.setXY(x, y, -1);
             aim_val--;
             continue;
         }
         if (y - 1 >= 0 && work_field.getXY(x,y-1) == aim_val){
             y = y - 1;
-            answer.setXY(x, y-1, -1);
+            answer.setXY(x, y, -1);
             aim_val--;
             continue;
         }
         if (y + 1 < max_y && work_field.getXY(x,y+1) == aim_val){
             y = y + 1;
-            answer.setXY(x, y+1, -1);
+            answer.setXY(x, y, -1);
             aim_val--;
             continue;
         }

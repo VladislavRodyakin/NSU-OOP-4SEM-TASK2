@@ -17,12 +17,20 @@ Labirynth LabirynthIO::parse(std::istream& input_stream)
         string_stream >> field;
         labir.push_back(field);
     }
-    x_dim = labir.size()-1;
+    x_dim = labir.size()-2; //-2 bc it cycles one more time before field != 1
     while (string_stream >> field){
         labir.push_back(field);
     }
     y_dim = labir.size()/x_dim;
 
+    /*
+    std::cout<<" x_dim = "<<x_dim<<" y_dim = "<<y_dim<< " labir.size() "<<labir.size()<<std::endl;
+    for (int i = 0; i < labir.size(); i++){
+        std::cout<<labir[i]<<" ";
+    }
+    std::cout<<std::endl;
+    */
+    
     if (labir.size() != x_dim * y_dim){
         throw std::invalid_argument("Invalid labirynth, inconsistent dimensions");
     }
@@ -35,14 +43,21 @@ void LabirynthIO::writeOutput(std::ostream& output_stream, const Labirynth& labi
     int max_x, max_y = 0;
     labirynth.getDimensions(max_x, max_y);
     int field = 0;
-    for (int i = 0; i < max_x; i++){
-        for (int j = 0; j < max_y; j++){
-            field = labirynth.getXY(i, j);
-            output_stream << (field == -1 ? '*' : field) << " ";
+    for (int i = 0; i < max_y; i++){
+        for (int j = 0; j < max_x; j++){
+            field = labirynth.getXY(j, i);
+            //std::cout<<" field = "<<field<<std::endl;
+            if (field == -1){
+                output_stream<<"* ";
+            }
+            else {
+                output_stream<<field<<" ";
+            }
+            // output_stream << (field == -1 ? '*' : field) << " "; // in this context '*' casts to int as 42
             // because path needs to be marked with *
         }
     }
-    output_stream << "\n";
+    output_stream << "\n"; // is it good practice?
 
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <iostream>
 
 //typedef std::vector<std::vector<int>> Labirynth;
 
@@ -22,17 +23,17 @@ public:
 class LabirynthSolver final
 {
 private:
-    // Labirynth m_labirynth;
+    Labirynth m_labirynth;
     // int m_x, m_y = 0;
     // bool solvable = true;
     Labirynth work_field;
     int x_start, y_start = 0;
     int x_finish, y_finish = 0;
-    int current_step = 0;
+    int current_step = 1;
 
     void init_work_field(const Labirynth& m_labirynth);
     int check_if_near_exit(int x, int y);
-    int update_work_field(bool& solvable);
+    int update_work_field();
     int solve();
     // int check_neighbour(int x, int y, int neigh_val);
     // void restore_way();
